@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URL;
 import java.time.Duration;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,12 @@ public class PolicyEnforcerTest {
 
         assureGetPath("/api-permission-tenant", 200, getAccessToken("admin"), "Permission Resource Tenant");
         assureGetPath("//api-permission-tenant", 200, getAccessToken("admin"), "Permission Resource Tenant");
+    }
+
+    @Test
+    public void testUMAProtectedEndpointTenant() {
+        assureGetPath("/uma-tenant", 403, getAccessToken("alice"), null, List.of("WWW-Authenticate"));
+        assureGetPath("//uma-tenant", 403, getAccessToken("alice"), null, List.of("WWW-Authenticate"));
     }
 
     @Test
@@ -243,6 +250,10 @@ public class PolicyEnforcerTest {
     }
 
     private void assureGetPath(String path, int expectedStatusCode, String token, String body) {
+        this.assureGetPath(path, expectedStatusCode, token, body, List.of());
+    }
+
+    private void assureGetPath(String path, int expectedStatusCode, String token, String body, List<String> headers) {
         var req = client.get(url.getPort(), url.getHost(), path);
         if (token != null) {
             req.bearerTokenAuthentication(token);
@@ -253,6 +264,8 @@ public class PolicyEnforcerTest {
         if (body != null) {
             assertTrue(result.result().bodyAsString().contains(body), path);
         }
+
+        assertEquals(0, req.headers().entries().stream().filter(key -> !headers.contains(key)).toList().size());
     }
 
     private void assureGetPathWithCookie(String path, Cookie cookie, int expectedStatusCode, String token, String body) {

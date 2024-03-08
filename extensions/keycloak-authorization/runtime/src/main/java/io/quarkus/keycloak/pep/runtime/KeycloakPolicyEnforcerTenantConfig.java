@@ -34,6 +34,14 @@ public class KeycloakPolicyEnforcerTenantConfig {
         public PolicyEnforcerConfig.EnforcementMode enforcementMode;
 
         /**
+         * If true, the resource server handling a request, with an access token that does not have a valid permission
+         * to access the requested endpoint, will ask Keycloak for a permission ticket.
+         * If false it will reject the request with the standard 403 forbidden error.
+         */
+        @ConfigItem(defaultValue = "false")
+        public boolean userManagedAccess;
+
+        /**
          * Specifies the paths to protect.
          */
         @ConfigItem

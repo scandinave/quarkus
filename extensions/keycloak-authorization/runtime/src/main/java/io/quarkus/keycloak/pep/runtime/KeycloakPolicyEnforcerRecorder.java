@@ -178,6 +178,10 @@ public class KeycloakPolicyEnforcerRecorder {
                     return config1;
                 }).collect(Collectors.toList()));
 
+        if (config.policyEnforcer.userManagedAccess) {
+            enforcerConfig.setUserManagedAccess(new PolicyEnforcerConfig.UserManagedAccessConfig());
+        }
+
         return enforcerConfig;
     }
 }
